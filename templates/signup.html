@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form action="{% url 'store:signup' %}" method="POST">
+    {% csrf_token %}
+    {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            <strong>Error:</strong> Please correct the errors below.
+            <ul>
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    <span>Username: <p>{{ form.username }}</p></span>
+    <span>Email: <p>{{ form.email }}</p></span>
+    <span>Password: <p>{{ form.password1 }}</p></span>
+    <span>Confirm Password: <p>{{ form.password2 }}</p></span>
+    <button type="submit">Sign Up</button>
+    <p>Made by Winnie ❤️</p>
+</form>
+
+{% endblock content %}

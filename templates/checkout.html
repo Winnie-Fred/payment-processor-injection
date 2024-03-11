@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form action="{% url 'store:payment_gateway_checkout' %}" method="POST">
+    {% csrf_token %}
+    <button type="submit">Pay school fees</button>
+    <p>Made by Winnie ❤️</p>
+</form>
+
+{% endblock content %}

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Payment Processor DI Example</title>
+        <style>
+            .wrapper {
+                background-color: #fde6eb; /* Subtly pink color */
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                width: 100%;%
+            }
+
+            form {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            button {
+                padding: 12px 24px;
+                font-size: 18px;
+                background-color: #ffc0cb; /* Custom button color */
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                margin-bottom: 20px;
+            }
+
+            p {
+                font-size: 16px;
+                text-align: center;
+            }
+
+            .messages {
+                display: block;
+                align-items: center;
+                width: 100%;
+                margin: 0 auto;
+            }
+    
+            .alert {
+                padding: 10px;
+                border-radius: 5px;
+                width: 100%;
+                text-align: center;
+            }
+    
+            /* Message type-specific styles */
+            .alert-success {
+                background-color: #d4edda;
+                color: #155724;
+            }
+    
+            .alert-info {
+                background-color: #cce5ff;
+                color: #004085;
+            }
+    
+            .alert-warning {
+                background-color: #fff3cd;
+                color: #856404;
+            }
+    
+            .alert-danger {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
+            form span {
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="wrapper">
+            {% block content %}
+            {% endblock content %}
+        </div>
+    </body>
+</html>
