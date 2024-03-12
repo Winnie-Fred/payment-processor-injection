@@ -27,7 +27,10 @@ import os
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
+LIVE = False
+
+DEBUG = not LIVE
 
 ALLOWED_HOSTS = []
 
@@ -88,7 +91,7 @@ DATABASES = {
 }
 
 
-PAYMENT_PROCESSOR = 'payments.paystack.PaystackProcessor' # Add this line
+PAYMENT_PROCESSOR = os.getenv('PAYMENT_PROCESSOR', 'payments.paystack.PaystackProcessor')
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -131,5 +134,4 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-PAYMENT_PROCESSOR_USE_CALLBACK = True
+PAYMENT_PROCESSOR_USE_CALLBACK = os.getenv("PAYMENT_PROCESSOR_USE_CALLBACK", True)
