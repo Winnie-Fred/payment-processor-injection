@@ -16,6 +16,8 @@ from django.contrib.auth import login as auth_login
 from payments.models import Payment, PaymentStatus
 from payments.utils import generate_unique_reference
 
+from store.utils import MessageTypes, OnlineTransactionStatus
+
 from .forms import CustomSignupForm
 
 payment_processor = get_payment_processor()
@@ -89,48 +91,77 @@ def payment_callback(request):
     Expected in request.GET dict - reference
     '''
 
-    reference = request.GET.get("reference")
-    payload = payment_processor.verify_payment(reference)
+    if request.method == 'GET' and 'reference' in request.GET:
+        reference = request.GET.get("reference")
+        payload = payment_processor.verify_payment(reference)
 
-    if payload:
-        try:
-            payment = Payment.objects.get(reference=reference)
-            if payment.status == PaymentStatus.UNPROCESSED:
-                logger.info("Processing payment via callback")
-                print("Processing payment via callback")
-                _post_payment_action(payment, payload)
-                messages.success(request, "Payment processed successfully.")
-            else:
-                logger.info("payment_callback - payment already completed")
-                messages.success(request, "Payment processed successfully.")
+        if payload:
+            try:
+                payment = Payment.objects.get(reference=reference)
+                if payment.status == PaymentStatus.UNPROCESSED:
+                    logger.info("Processing payment via callback")
+                    print("Processing payment via callback")    
+                    if payload["data"]["status"] == OnlineTransactionStatus.SUCCESSFUL:
+                        result = _post_successful_payment_actions(payment, payload["data"]["payment_date"], request)
+                        if result['status'] == MessageTypes.SUCCESS.value:
+                            messages.success(request, result['message'])
+                            return redirect('store:payment_confirmed', reference=payment.reference)
+                        else:
+                            message = "Payment was successful but something went wrong."
+                            messages.error(request, message)
+                            logger.info(message)
+                            print(message)   
+                            return render(request, "payment-processing-result.html", result)
+                    elif payload["data"]["status"] == OnlineTransactionStatus.FAILED:
+                        message = "Payment was unsuccessful."
+                        messages.error(request, message)
+                        logger.info(message)
+                        print(message)   
+                        result = _post_failed_payment_actions(payment, payload["data"]["payment_date"], request)
+                        return render(request, "payment-processing-result.html", result)
+                else:
+                    logger.info("payment_callback - payment already processed")
+                    print("payment_callback - payment already processed")
+                    messages.info(request, "That payment has already been processed")
 
-            # redirect to order confirmed
-            return redirect('store:payment_confirmed', reference=payment.reference)
-
-        except Payment.DoesNotExist:
-            logger.error(
-                "payment_callback - payment does not exist")
-            messages.error(request, "Payment does not exist.")
-    else:
-        messages.error(request, "Unable to verify payment.")
+            except Payment.DoesNotExist:
+                logger.error("payment_callback - payment does not exist")
+                messages.error(request, "Payment does not exist.")
+        else:
+            logger.error("Unable to verify payment.")
+            messages.error(request, "Unable to verify payment.")
 
     return redirect('store:checkout')
 
 
-def _post_payment_action(payment, payload):
-    paid_at = payload["data"]["payment_date"]
+def _post_successful_payment_actions(payment, date, request):
 
-    with transaction.atomic():
+    try:
+        with transaction.atomic():
 
-        # get and update payment object
-        payment.date  = paid_at
-        payment.status = PaymentStatus.COMPLETED
-        payment.save()
+            # get and update payment object
+            payment.date  = date
+            payment.status = PaymentStatus.COMPLETED
+            payment.save()
 
-        # perform any other actions here that should happen after successful transaction
-                    
-    # You can send transaction successful email via signals or so
+            # perform any other actions here that should happen after successful transaction
+            return {'status':MessageTypes.SUCCESS.value, 'message': 'Payment processed successfully', 'payment': payment}
+               
+        # You can send transaction successful email here
 
+    except Exception:
+        return {'status': MessageTypes.ERROR.value, 'message': 'Oops. An error occurred. Please report the issue to the developers.', 'payment': payment}    
+
+def _post_failed_payment_actions(payment, date, request):
+    
+    try:  
+        with transaction.atomic():  
+            payment.date = date                      
+            payment.status = PaymentStatus.FAILED
+            payment.save()
+            return {'status': MessageTypes.ERROR.value, 'message': 'Oops. Payment was unsuccessful.', 'payment':payment}
+    except Exception:
+        return {'status': MessageTypes.ERROR.value, 'message': 'Oops. An error occurred. Please report the issue to the developers.', 'payment':payment}    
 
 @csrf_exempt
 @require_POST

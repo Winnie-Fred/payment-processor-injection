@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div>
+    <h2>Ref: #{{ payment.reference }}</h2>
+    <p class="{{ status }}">{{ message }}</p>
+    <p>Made by Winnie ❤️</p>
+</div>
+
+{% endblock content %}

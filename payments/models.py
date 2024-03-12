@@ -35,6 +35,7 @@ supported_payment_processors = get_supported_payment_processors()
 class PaymentStatus(models.TextChoices):
     UNPROCESSED = 'UP', _('Unprocessed')
     COMPLETED = 'CM', _('Completed')
+    FAILED  = 'FD', _('Failed')
 
 
 class Payment(models.Model):
