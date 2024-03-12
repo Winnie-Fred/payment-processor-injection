@@ -1,5 +1,5 @@
 """
-WSGI config for paystack_di project.
+WSGI config for processor_di project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'paystack_di.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'processor_di.settings')
 
 application = get_wsgi_application()
