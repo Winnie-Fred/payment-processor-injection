@@ -2,7 +2,6 @@ import json
 import logging
 
 from django.shortcuts import render, redirect
-from payments.factory import get_payment_processor
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
@@ -11,8 +10,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login as auth_login
+from django.contrib.auth import login as auth_login, authenticate
 
+from payments.factory import get_payment_processor
 from payments.models import Payment, PaymentStatus
 from payments.utils import generate_unique_reference
 
@@ -28,10 +28,16 @@ logger = logging.getLogger(__name__)
 def login(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
+
         if form.is_valid():
-            user = form.get_user()
-            auth_login(request, user)
-            return redirect('store:checkout')
+            user = authenticate(
+                username=form.cleaned_data['username'],
+                password=form.cleaned_data['password'],
+            )
+            if user is not None:
+                auth_login(request, user)
+                return redirect('store:checkout')
+
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})

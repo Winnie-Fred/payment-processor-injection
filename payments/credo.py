@@ -16,11 +16,15 @@ from requests.exceptions import RequestException
 from .interfaces import PaymentProcessor
 from store.utils import OnlineTransactionStatus
 
+
+
 PUBLIC_KEY = os.getenv('CREDO_PUBLIC_KEY')
 SECRET_KEY = os.getenv('CREDO_SECRET_KEY')
+CREDO_SERVICE_CODE = os.getenv('CREDO_SERVICE_CODE')
 
 CREDO_LIVE_URL="https://api.credocentral.com"
 CREDO_DEMO_URL="https://api.public.credodemo.com"
+
 
 URL_ROOT = CREDO_LIVE_URL if settings.LIVE else CREDO_DEMO_URL
 
@@ -45,6 +49,9 @@ class CredoProcessor(PaymentProcessor):
         if settings.PAYMENT_PROCESSOR_USE_CALLBACK:
             body['callbackUrl'] = callback_url
 
+        if CREDO_SERVICE_CODE:
+            body['serviceCode'] = CREDO_SERVICE_CODE #  for split payments or dynamic settlement
+
 
         try:
             response = requests.post(
@@ -64,7 +71,7 @@ class CredoProcessor(PaymentProcessor):
                 if response_dict['status'] == 200 and 'data' in response_dict:
                     return response_dict['data']['authorizationUrl']
                 print("response_dict: ", response_dict)
-            print("response: ", response)
+            print("response: ", response.content)
 
         except RequestException as e:
             print("An error occured while making the request: ", e)
@@ -102,7 +109,7 @@ class CredoProcessor(PaymentProcessor):
                         response_dict["data"]["payment_date"] = date
                     return response_dict
                 print("response_dict: ", response_dict)
-            print("response: ", response)
+            print("response: ", response.content)
 
         except RequestException as e:
             print("An error occured while making the request: ", e)

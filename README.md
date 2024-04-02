@@ -9,6 +9,7 @@
    f. `CREDO_SECRET_KEY`<br>
    g. `CREDO_WEBHOOK_TOKEN`<br>
    h. `CREDO_BUSINESS_CODE`<br>
+   i. `CREDO_SERVICE_CODE` - Optional, if you want to use dynamic settlement or split payments<br>
 5. Run python manage.py migrate (no need to makemigrations)
 6. Run python manage.py runserver
 7. Go to http://127.0.0.1:8000/checkout/

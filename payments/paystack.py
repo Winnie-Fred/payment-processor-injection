@@ -61,7 +61,7 @@ class PaystackProcessor(PaymentProcessor):
                 if response_dict['status'] == True and 'data' in response_dict:
                     return response_dict['data']['authorization_url']            
                 print("response_dict: ", response_dict)
-            print("response: ", response.json())
+            print("response: ", response.content)
             
         except RequestException as e:
             print("An error occured while making the request: ", e)
@@ -99,7 +99,7 @@ class PaystackProcessor(PaymentProcessor):
                         response_dict["data"]["payment_date"] = parse_datetime(payment_date_value)
                     return response_dict
                 print("response_dict: ", response_dict)
-            print("response: ", response)
+            print("response: ", response.content)
 
         except RequestException as e:
             print("An error occured while making the request: ", e)
