@@ -65,6 +65,10 @@ def payment_confirmed(request, reference):
 @login_required(login_url='store:login')
 def payment_gateway_checkout(request):
     if request.method == "POST":
+        
+        if not request.user.email:
+            messages.error(request, "User has no email address")
+            return redirect('store:checkout')
 
         amount = 400 # Use the school fees amount here
 
