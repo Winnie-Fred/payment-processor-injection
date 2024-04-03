@@ -19,6 +19,8 @@ from store.utils import OnlineTransactionStatus
 
 URL_ROOT = "https://api.paystack.co"
 SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
+SPLIT_CODE = os.getenv('PAYSTACK_SPLIT_CODE')
+
 
 AUTH_HEADER = f"Bearer {SECRET_KEY}"
 
@@ -42,6 +44,9 @@ class PaystackProcessor(PaymentProcessor):
         
         if settings.PAYMENT_PROCESSOR_USE_CALLBACK:
             body['callback_url'] = callback_url
+
+        if SPLIT_CODE:
+            body['split_code'] = SPLIT_CODE #  for split payments or dynamic settlement
 
         try:
             response = requests.post(
@@ -87,7 +92,6 @@ class PaystackProcessor(PaymentProcessor):
                 except json.JSONDecodeError:
                     return {}
                 
-                print(response_dict)
 
                 if response_dict["status"] == True and 'data' in response_dict:
                     if response_dict["data"]["status"] == "success":

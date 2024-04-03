@@ -20,7 +20,7 @@ from store.utils import OnlineTransactionStatus
 
 PUBLIC_KEY = os.getenv('CREDO_PUBLIC_KEY')
 SECRET_KEY = os.getenv('CREDO_SECRET_KEY')
-CREDO_SERVICE_CODE = os.getenv('CREDO_SERVICE_CODE')
+SPLIT_CODE = os.getenv('CREDO_SERVICE_CODE')
 
 CREDO_LIVE_URL="https://api.credocentral.com"
 CREDO_DEMO_URL="https://api.public.credodemo.com"
@@ -49,8 +49,8 @@ class CredoProcessor(PaymentProcessor):
         if settings.PAYMENT_PROCESSOR_USE_CALLBACK:
             body['callbackUrl'] = callback_url
 
-        if CREDO_SERVICE_CODE:
-            body['serviceCode'] = CREDO_SERVICE_CODE #  for split payments or dynamic settlement
+        if SPLIT_CODE:
+            body['serviceCode'] = SPLIT_CODE #  for split payments or dynamic settlement
 
 
         try:

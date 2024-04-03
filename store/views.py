@@ -65,7 +65,7 @@ def payment_confirmed(request, reference):
 @login_required(login_url='store:login')
 def payment_gateway_checkout(request):
     if request.method == "POST":
-        
+
         if not request.user.email:
             messages.error(request, "User has no email address")
             return redirect('store:checkout')
@@ -88,8 +88,7 @@ def payment_gateway_checkout(request):
             request.user.email, amount, payment.reference, callback_url)
         if payment_url:
             return redirect(payment_url)
-        else:
-            messages.error(request, "Cannot process payment at the moment.")
+        messages.error(request, "Cannot process payment at the moment.")
     return redirect('store:checkout')
 
 
